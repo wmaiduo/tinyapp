@@ -7,15 +7,21 @@ const bodyParser = require("body-parser");
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW"
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW"
+  }
 };
 
 const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: "aba"
   },
   "user2RandomID": {
     id: "user2RandomID",
@@ -33,6 +39,15 @@ function emailLookup(email) {
   return true;
 }
 
+function urlsForUser(id) {
+  let updatedUrlDatabase = {};
+  for (let url in urlDatabase) {
+    if (urlDatabase[url].userID === id) {
+      updatedUrlDatabase[url] = { longURL: urlDatabase[url].longURL, userID: id };
+    }
+  };
+  return updatedUrlDatabase;
+}
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -56,35 +71,52 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let id = null;
-  if (typeof req.cookies !== 'undefined') {
+  if (req.cookies['user_id'] !== undefined) {
     id = req.cookies["user_id"];
+    let updatedUrlDatabase = urlsForUser(id);
+    const templateVars = { urls: updatedUrlDatabase, user_id: id };
+    res.render("urls_index", templateVars);
+  } else {
+    res.status(400).send("not logged in");
   }
-  const templateVars = { urls: urlDatabase, user_id: id };
-  res.render("urls_index", templateVars);
+
+
 });
 
 app.get("/urls/new", (req, res) => {
-  let id = null;
-  console.log("req.cookies1: ", req.cookies, "\n");
-  if (req.cookies === null) {
-    id = req.cookies["user_id"];
-    console.log('true');
+  if (req.cookies['user_id'] === undefined) {
+    res.redirect('../urls');
   } else {
-    res.redirect("./");
-    console.log('false');
+    let id = req.cookies['user_id'];
+    res.render("urls_new", { user_id: id });
   }
-  res.render("urls_new", { user_id: id });
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   let id = null;
-  if (typeof req.cookies !== 'undefined') {
+  if (req.cookies['user_id'] !== undefined) {
     id = req.cookies["user_id"];
+
+    let a = req.params.shortURL;
+    let updatedUrlDatabase = urlsForUser(id);
+
+    let containingThisShortURL = false;
+    for (let url in updatedUrlDatabase) {
+      if (a === url) {
+        containingThisShortURL = true;
+      }
+    }
+
+    if (containingThisShortURL) {
+      const templateVars = { shortURL: a, longURL: urlDatabase[a].longURL, user_id: id };
+      res.render("urls_show", templateVars);
+    } else {
+      res.status(400).send("this website does not belong to you");
+    }
+  } else {
+    res.status(400).send("not logged in");
   }
-  let a = req.params.shortURL;
-  console.log(a, ' :', urlDatabase[a]);
-  const templateVars = { shortURL: a, longURL: urlDatabase[a], user_id: id };
-  res.render("urls_show", templateVars);
+
 });
 
 function generateRandomString() {
@@ -94,32 +126,65 @@ function generateRandomString() {
 
 app.post("/urls", (req, res) => {
   let id = null;
-  if (typeof req.cookies !== 'undefined') {
+  if (req.cookies['user_id'] !== undefined) {
     id = req.cookies["user_id"];
   }
   shortURL = generateRandomString()
-  urlDatabase[shortURL] = req.body.longURL;
-  const templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL], user_id: id };
+
+  urlDatabase[shortURL] = { longURL: req.body.longURL, userID: id };
+  const templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].longURL, user_id: id };
   res.render("urls_show", templateVars)
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+  let currentID = req.cookies['user_id'];
+  let updatedUrlDatabase = urlsForUser(currentID);
   const shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL];
-  res.redirect('/urls')
+
+  let status400 = true;
+  for (let url in updatedUrlDatabase) {
+    if (updatedUrlDatabase[url].userID === urlDatabase[shortURL].userID) {
+      delete urlDatabase[shortURL];
+      status400 = false;
+      res.redirect('/urls')
+    }
+  }
+
+  if (status400) {
+    res.status(400).send("trying to modify someone else's file");
+  }
 });
 
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
-  delete urlDatabase[shortURL];
-  urlDatabase[req.body.url] = longURL;
-  res.redirect("/urls");
+  const updatedUrlDatabase = urlsForUser(req.cookies['user_id']);
+
+  let error400 = true;
+
+  for (let url in updatedUrlDatabase) {
+    if (updatedUrlDatabase[url].userID === urlDatabase[shortURL].userID) {
+      error400 = false;
+    }
+  }
+  console.log(urlDatabase[shortURL]);
+  if (urlDatabase[shortURL].userID === undefined) {
+    error400 = false;
+  }
+
+  if (!error400) {
+    const longURL = urlDatabase[shortURL].longURL;
+    delete urlDatabase[shortURL];
+    urlDatabase[req.body.url] = { longURL: longURL, userID: req.cookies['user_id'] };
+    console.log("post urlDatabase: ", urlDatabase);
+    res.redirect("/urls");
+  } else {
+    res.status(400).send("accessing someone else's website");
+  }
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
