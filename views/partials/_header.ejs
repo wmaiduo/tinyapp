@@ -10,9 +10,12 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
         <% if (!user_id) { %>
-          <form method='POST' action='/login'>
-            <input name="user_id" value="user_id" />
+          <form method='GET' action='/login'>
             <button type="submit">Login</button>
+          </form>
+          <br>
+          <form method='GET' action='/register'>
+            <button type="submit">Register</button>
           </form>
           <% } else {%>
             <p>

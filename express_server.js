@@ -11,18 +11,28 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const users = { 
+const users = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
 }
+
+function emailLookup(email) {
+  for (let user in users) {
+    if (email === users[user].email) {
+      return false;
+    }
+  }
+  return true;
+}
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -113,9 +123,18 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  user_id = req.body.user_id;
-  res.cookie('user_id', user_id);
-  res.redirect('/urls');
+  loginEmail = req.body.email;
+  loginPassword = req.body.password;
+  for (let user in users) {
+    if (users[user].email === loginEmail) {
+      if (users[user].password === loginPassword) {
+        res.cookie('user_id', users[user].id);
+        res.redirect("/urls");
+      }
+    }
+  }
+  res.status(403).end();
+
 });
 
 app.post("/logout", (req, res) => {
@@ -123,7 +142,7 @@ app.post("/logout", (req, res) => {
   res.redirect('/urls');
 });
 
-app.get("/register", (req,res) => {
+app.get("/register", (req, res) => {
   res.render("urls_register");
 });
 
@@ -131,8 +150,14 @@ app.post("/register", (req, res) => {
   const requestID = generateRandomString();
   const requestEmail = req.body.email;
   const requestPassword = req.body.password;
-  users[requestID] = { id: requestID, email: requestEmail, password: requestPassword };
-  res.cookie('user_id', requestID);
-  console.log(users);
-  res.redirect("/urls");
+  if (emailLookup(requestEmail)) {
+    users[requestID] = { id: requestID, email: requestEmail, password: requestPassword };
+    res.cookie('user_id', requestID);
+    console.log(users);
+    res.redirect("/urls");
+  } else res.status(400).end();
+});
+
+app.get("/login", (req, res) => {
+  res.render("partials/login");
 });
