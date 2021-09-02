@@ -110,3 +110,7 @@ app.post("/logout", (req, res) => {
   res.clearCookie('username');
   res.redirect('/urls');
 });
+
+app.get("/register", (req,res) => {
+  res.render("urls_register");
+});
