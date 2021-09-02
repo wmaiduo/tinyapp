@@ -65,8 +65,13 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   let id = null;
-  if (typeof req.cookies !== 'undefined') {
+  console.log("req.cookies1: ", req.cookies, "\n");
+  if (req.cookies === null) {
     id = req.cookies["user_id"];
+    console.log('true');
+  } else {
+    res.redirect("./");
+    console.log('false');
   }
   res.render("urls_new", { user_id: id });
 });
