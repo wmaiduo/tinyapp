@@ -5,6 +5,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
+const { getUserByEmail, emailLookup } = require('./helper');
 
 app.set("view engine", "ejs");
 
@@ -37,26 +38,6 @@ const users = {
   }
 }
 
-function emailLookup(email) {
-  for (let user in users) {
-    if (email === users[user].email) {
-      return false;
-    }
-  }
-  return true;
-}
-
-const getUserByEmail = function (email, database) {
-  for (let user in database) {
-    if (database[user].email === email) {
-      return user;
-    } else {
-      return false
-    }
-  }
-}
-
-
 function urlsForUser(id) {
   let updatedUrlDatabase = {};
   for (let url in urlDatabase) {
@@ -76,8 +57,11 @@ app.use(cookieSession({
 
 
 app.get("/", (req, res) => {
-  console.log(urlDatabase["b2xVn2"]);
-  res.send("Hello!");
+  if (req.session.user_id !== undefined) {
+    res.redirect('/urls');
+  } else {
+    res.redirect('/login');
+  }
 });
 
 app.listen(PORT, () => {
@@ -96,14 +80,13 @@ app.get("/urls", (req, res) => {
   let id = null;
   if (req.session.user_id !== undefined) {
     id = req.session.user_id;
+    const email = users[id].email;
     let updatedUrlDatabase = urlsForUser(id);
-    const templateVars = { urls: updatedUrlDatabase, user_id: id };
+    const templateVars = { urls: updatedUrlDatabase, user_id: id, user_email: email };
     res.render("urls_index", templateVars);
   } else {
     res.status(400).send("not logged in");
   }
-
-
 });
 
 app.get("/urls/new", (req, res) => {
@@ -111,7 +94,8 @@ app.get("/urls/new", (req, res) => {
     res.redirect('../urls');
   } else {
     let id = req.session.user_id;
-    res.render("urls_new", { user_id: id });
+    const email = users[id].email; 
+    res.render("urls_new", { user_id: id, user_email: email });
   }
 });
 
@@ -131,7 +115,7 @@ app.get("/urls/:shortURL", (req, res) => {
     }
 
     if (containingThisShortURL) {
-      const templateVars = { shortURL: a, longURL: urlDatabase[a].longURL, user_id: id };
+      const templateVars = { shortURL: a, longURL: urlDatabase[a].longURL, user_id: id, user_email: users[id].email };
       res.render("urls_show", templateVars);
     } else {
       res.status(400).send("this website does not belong to you");
@@ -155,7 +139,7 @@ app.post("/urls", (req, res) => {
   shortURL = generateRandomString()
 
   urlDatabase[shortURL] = { longURL: req.body.longURL, userID: id };
-  const templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].longURL, user_id: id };
+  const templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].longURL, user_id: id, user_email: users[user].email };
   res.render("urls_show", templateVars)
 });
 
@@ -249,7 +233,7 @@ app.post("/register", (req, res) => {
   const requestID = generateRandomString();
   const requestEmail = req.body.email;
   const requestPassword = req.body.password;
-  if (emailLookup(requestEmail)) {
+  if (emailLookup(requestEmail, users)) {
     users[requestID] = { id: requestID, email: requestEmail, password: requestPassword };
     req.session.user_id = requestID;
     console.log(users);
