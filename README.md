@@ -4,17 +4,17 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["https://github.com/wmaiduo/tinyapp/blob/master/docs/urls-page.png?raw=true"](urls page)
+!["urls page"](https://github.com/wmaiduo/tinyapp/blob/master/docs/urls-page.png?raw=true)
 
-!["https://github.com/wmaiduo/tinyapp/blob/master/docs/urls-new-page.png?raw=true"](add a website)
+!["add a website"](https://github.com/wmaiduo/tinyapp/blob/master/docs/urls-new-page.png?raw=true)
 
-!["https://github.com/wmaiduo/tinyapp/blob/master/docs/urls-edit.png?raw=true"](confirm name change)
+!["confirm name change"](https://github.com/wmaiduo/tinyapp/blob/master/docs/urls-edit.png?raw=true)
 
-![https://github.com/wmaiduo/tinyapp/blob/master/docs/urls-page-after.png?raw=true](after a website is added)
+!["urls page after a website is added"](https://github.com/wmaiduo/tinyapp/blob/master/docs/urls-page-after.png?raw=true)
 
-!["https://github.com/wmaiduo/tinyapp/blob/master/docs/login-page.png?raw=true"](login page)
+!["login page"](https://github.com/wmaiduo/tinyapp/blob/master/docs/login-page.png?raw=true)
 
-!["https://github.com/wmaiduo/tinyapp/blob/master/docs/register-page.png?raw=true](register page)
+!["register page"](https://github.com/wmaiduo/tinyapp/blob/master/docs/register-page.png?raw=true)
 
 ## Dependencies
 
