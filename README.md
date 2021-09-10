@@ -2,8 +2,6 @@
 
 TinyApp is a full stack web application built with Node and Express that allows users to shorten long URLs (à la bit.ly).
 
-Use npm start to start
-To test the app, there is default test database. Login using email user2@example.com and password dishwasher-funk. Or go to /register to register as a new user.
 
 ## Final Product
 !["Login Page"](https://github.com/wmaiduo/tinyapp/blob/master/docs/login.png)
@@ -26,5 +24,6 @@ To test the app, there is default test database. Login using email user2@example
 - Install all dependencies (using the `npm install` command)
 I have used bcrypt 5.0.1 as 2.0.0 could not be downloaded
 
-.
-- Run the development web server using the `node express_server.js` command.
+- npm start
+
+- To test the app, there is default test database. Login using email user2@example.com and password dishwasher-funk. Or go to /register to register as a new user.
