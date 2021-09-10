@@ -64,7 +64,7 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let id = null;
-
+  console.log(urlDatabase);
   if (userIsLoggedIn(req.session.userID)) {
     id = req.session.userID;
     const email = users[id].email;
@@ -127,8 +127,17 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
+  console.log(urlDatabase[req.params.shortURL].longURL);
+  let websiteHeader = '';
+  for (let i = 0; i <= 3; i++) {
+    websiteHeader += urlDatabase[req.params.shortURL].longURL[i];
+  }
+  console.log("header", websiteHeader);
+  if (websiteHeader !== "http") {
+    res.redirect("https://www." + urlDatabase[req.params.shortURL].longURL);
+  } else {
+    res.redirect(urlDatabase[req.params.shortURL].longURL);
+  }
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
