@@ -8,7 +8,6 @@ const getUserByEmail = function(email, database) {
   }
 };
 
-
 //check whether email is in database
 const emailLookup = function(email, database) {
   for (let user in database) {
@@ -20,12 +19,12 @@ const emailLookup = function(email, database) {
 };
 
 //return the personal database that only contains things associated with this particular 
-//user based on the id of the user
-const urlsForUser = function(id, urlDatabase) {
+//user based on the personalID of the user
+const urlsForUser = function(personalID, urlDatabase) {
   let updatedUrlDatabase = {};
   for (let url in urlDatabase) {
-    if (urlDatabase[url].userID === id) {
-      updatedUrlDatabase[url] = { longURL: urlDatabase[url].longURL, userID: id };
+    if (urlDatabase[url].userID === personalID) {
+      updatedUrlDatabase[url] = { longURL: urlDatabase[url].longURL, userID: personalID };
     }
   }
   return updatedUrlDatabase;
