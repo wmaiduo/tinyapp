@@ -6,18 +6,15 @@ Use npm start to start
 To test the app, there is default test database. Login using email user2@example.com and password dishwasher-funk. Or go to /register to register as a new user.
 
 ## Final Product
+!["https://github.com/wmaiduo/tinyapp/blob/master/docs/login.png"](Login Page)
 
-!["urls page"](https://github.com/wmaiduo/tinyapp/blob/master/docs/urls-page.png?raw=true)
+!["https://github.com/wmaiduo/tinyapp/blob/master/docs/urls.png"](Empty URL)
 
-!["add a website"](https://github.com/wmaiduo/tinyapp/blob/master/docs/urls-new-page.png?raw=true)
+!["https://github.com/wmaiduo/tinyapp/blob/master/docs/create-new-url.png"](Create new URL)
 
-!["confirm name change"](https://github.com/wmaiduo/tinyapp/blob/master/docs/urls-edit.png?raw=true)
+!["https://github.com/wmaiduo/tinyapp/blob/master/docs/update-short-url-name.png"](Update short URL)
 
-!["urls page after a website is added"](https://github.com/wmaiduo/tinyapp/blob/master/docs/urls-page-after.png?raw=true)
-
-!["login page"](https://github.com/wmaiduo/tinyapp/blob/master/docs/login-page.png?raw=true)
-
-!["register page"](https://github.com/wmaiduo/tinyapp/blob/master/docs/register-page.png?raw=true)
+!["https://github.com/wmaiduo/tinyapp/blob/master/docs/after-url-is-created.png"](After URL is created)
 
 ## Dependencies
 
