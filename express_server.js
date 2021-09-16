@@ -127,6 +127,34 @@ app.get("/urls/:id", (req, res) => {
   }
 });
 
+//redirect using shortURL id
+app.get("/u/:id", (req, res) => {
+  if (urlDatabase[req.params.id] === undefined) {
+    res.status(400).send("website does not exist");
+  } else {
+    let websiteHeader = "";
+    for (let i = 0; i <= 3; i++) {
+      websiteHeader += urlDatabase[req.params.id].longURL[i];
+    }
+
+    //check whether the longURL has "http" in the front, if not then http is added to make sure the link works
+    if (!urlDatabase[req.params.id].longURL.includes("www.")) {
+      res.redirect("https://www." + urlDatabase[req.params.id].longURL);
+    } else {
+      res.status(301).redirect('https://' + urlDatabase[req.params.id].longURL);
+    }
+  }
+});
+
+//register
+app.get("/register", (req, res) => {
+  if (userIsLoggedIn(req.session.userID)) {
+    res.redirect("/urls");
+  } else {
+    res.render("urls_register", { userID: false });
+  }
+});
+
 //generate an URL
 app.post("/urls", (req, res) => {
   if (userIsLoggedIn(req.session.userID)) {
@@ -145,22 +173,12 @@ app.post("/urls", (req, res) => {
   }
 });
 
-//redirect using shortURL id
-app.get("/u/:id", (req, res) => {
-  if (urlDatabase[req.params.id] === undefined) {
-    res.status(400).send("website does not exist");
+//login
+app.get("/login", (req, res) => {
+  if (userIsLoggedIn(req.session.userID)) {
+    res.redirect("/urls");
   } else {
-    let websiteHeader = "";
-    for (let i = 0; i <= 3; i++) {
-      websiteHeader += urlDatabase[req.params.id].longURL[i];
-    }
-
-    //check whether the longURL has "http" in the front, if not then http is added to make sure the link works
-    if (websiteHeader !== "http") {
-      res.redirect("https://www." + urlDatabase[req.params.id].longURL);
-    } else {
-      res.redirect(urlDatabase[req.params.id].longURL);
-    }
+    res.render("partials/login", { userID: false });
   }
 });
 
@@ -211,12 +229,10 @@ app.post("/urls/:id", (req, res) => {
   if (!error400) {
     //happy path
     //update shortURL according to user input
-    console.log(shortURL);
-    console.log(req.body.url);
     urlDatabase[shortURL] = {
       longURL: req.body.url,
-      userID: req.session.userID
-    }
+      userID: req.session.userID,
+    };
     res.redirect("/urls");
   } else {
     //error
@@ -238,33 +254,26 @@ app.post("/urls/:id/edit", (req, res) => {
 app.post("/login", (req, res) => {
   const loginEmail = req.body.email;
   const loginPassword = req.body.password;
+  let error400 = true;
   for (let user in users) {
     if (users[user].email === loginEmail) {
-      console.log("password: ", loginPassword);
-      console.log("hashed password: ", users[user].hashedPassword);
       if (bcrypt.compareSync(loginPassword, users[user].hashedPassword)) {
         //log in if the login email or password matches with user database
         req.session.userID = users[user].id;
+        error400 = false;
         res.redirect("/urls");
       }
     }
   }
-  res.status(400).send("wrong username or password");
+  if (error400) {
+    res.status(400).send("wrong username or password");
+  }
 });
 
 //logout
 app.post("/logout", (req, res) => {
   req.session = null; //delete cookies
   res.redirect("/urls");
-});
-
-//register
-app.get("/register", (req, res) => {
-  if (userIsLoggedIn(req.session.userID)) {
-    res.redirect("/urls");
-  } else {
-    res.render("urls_register", { userID: false });
-  }
 });
 
 //post for register user
@@ -285,15 +294,6 @@ app.post("/register", (req, res) => {
     req.session.userID = requestID;
     res.redirect("/urls");
   } else res.status(400).send("email already exists");
-});
-
-//login
-app.get("/login", (req, res) => {
-  if (userIsLoggedIn(req.session.userID)) {
-    res.redirect("/urls");
-  } else {
-    res.render("partials/login", { userID: false });
-  }
 });
 
 app.listen(PORT, () => {
